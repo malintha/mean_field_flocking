@@ -253,17 +253,6 @@ void Quadrotor::desired_acc_cb(const geometry_msgs::PointConstPtr &pt) {
     this->xd0.position = this->x0.position;
     this->xd0.velocity = this->x0.velocity;
 
-//    if(robot_id == 2)
-//    ROS_DEBUG_STREAM(tau<<" xd[2]: "<<xd0.position[2]<<" u[2]: " << u[2]);
-
-
-//    if(this->sim_time > 10) {
-//        ROS_DEBUG_STREAM("written to file "<< velocities.size()<<" " << robot_id);
-//        write_to_file();
-//        positions.clear();
-//        velocities.clear();
-//        accelerations.clear();
-//    }
 }
 // xd should be in NED frame and so does dynamics and controller.
 void Quadrotor::iteration(const ros::TimerEvent &e) {
@@ -278,9 +267,6 @@ void Quadrotor::iteration(const ros::TimerEvent &e) {
     xd[1] = xd0.position[1];
     xd[2] = 0;
 
-
-//    if(robot_id == 2)
-//    ROS_DEBUG_STREAM(tau<<" xd[2]: "<<xd[2]<<" u[2]: " << u[2]);
 
     desired_state_t dss = {xd, b1d};
     this->move(dss);

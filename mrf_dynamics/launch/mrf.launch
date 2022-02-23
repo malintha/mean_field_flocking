@@ -3,61 +3,62 @@
     <env name="ROSCONSOLE_CONFIG_FILE" value="$(find mrf_dynamics)/config/custom_rosconsole.conf"/>
     <include file="$(find multi_uav_simulator)/launch/simu.launch" pass_all_args="true"/>
     
+    <!-- Swarm parameters -->
     <arg name="n_robots" default="8"/>
-    
+    <arg name="k_neighbors" default="3"/>
+    <arg name="frequency" default="3"/>
+
+    <!-- Tuning parameters: Eq (5) and (6) -->
+    <arg name="attraction_bias" default="1"/> <!-- a -->
+    <arg name="repulsion_bias" default="3"/> <!-- b -->
+    <arg name="agent_attraction" default="1.5"/> <!-- ka -->
+    <arg name="agent_repulsion" default="0.5"/> <!-- kr -->
+    <arg name="roost_attraction" default="30"/> <!-- KR -->
+
+    <param name="a" value="$(arg attraction_bias)"/>
+    <param name="b" value="$(arg repulsion_bias)"/>
+    <param name="ka" value="$(arg agent_attraction)"/>
+    <param name="kr" value="$(arg agent_repulsion)"/>
+    <param name="KR" value="$(arg roost_attraction)"/>
+
+
     <group ns="robot_1">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="1"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="1 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
 
     <group ns="robot_2">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="2"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="2 $(arg k_neighbors) $(arg n_robots) $(arg frequency)" >
         </node>
     </group>
     
     <group ns="robot_3">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="3"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="3 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
     
     <group ns="robot_4">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="4"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="4 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
     
     <group ns="robot_5">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="5"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="5 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
 
     <group ns="robot_6">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="6"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="6 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
     
     <group ns="robot_7">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="7"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="7 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
 
     <group ns="robot_8">
-        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen">
-            <param name="robot_id" value="8"/>
-            <param name="n_robots" value="$(arg n_robots)"/>
+        <node name="mrf" pkg="mrf_dynamics" type="mrf_dynamics" output="screen" args="8 $(arg k_neighbors) $(arg n_robots) $(arg frequency)">
         </node>
     </group>
 

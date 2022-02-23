@@ -1,8 +1,7 @@
 //
 // Created by malintha on 10/13/20.
 //
-//#include "ros/ros.h"
-//#include "mrf_dynamics.h"
+
 #include "Definitions.h"
 #include "simulator_utils/simulator_utils.h"
 #include "Drone.h"
@@ -11,11 +10,7 @@
 #include <chrono>
 #include "visualization_msgs/Marker.h"
 
-static float a = 1.0f;
-static float b = 3.0f;
-static float ca = 1.0 / 1.5f;
-static float cr = 1.0 / 0.5f;
-static float cc = 30.f;
+float a,b,ka,kr,KR;
 static Vector3d rc(0,0,0);
 
 void draw_edges(const ros::Publisher& edge_pub, vector<geometry_msgs::Point> neighbor_pos,Vector3d rgb) {
@@ -99,11 +94,11 @@ void publish_goal(const ros::Publisher& goal_pub) {
 
 double psi_p(const Label& xi, const Label& xj) {
     double d = (xi.pt - xj.pt).norm();
-    return 5*(-a * exp(-(d * ca)) + b * exp(-(d * cr))) +1 ;
+    return 5*(-a * exp(-(d * ka)) + b * exp(-(d * kr))) +1 ;
 }
 
 double psi_ue(const Label& l) {
-    return 3*exp((l.pt - rc).norm()/cc);
+    return 3*exp((l.pt - rc).norm()/KR);
 }
 
 double psi_u(const Label& l, Vector3d& pt) {
@@ -178,13 +173,30 @@ bool satisfy_label(vector<Label> &labels, Label &label, const std::vector<simula
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "~");
-    double frequency = 3;
-    double dt = 1/frequency;
-    ros::NodeHandle nh;
-    int robot_id, n_robots;
-    nh.getParam("mrf/robot_id", robot_id);
-    nh.getParam("mrf/n_robots", n_robots);
+    
+    int robot_id = std::atoi(argv[1]); 
 
+    // K : number of neighbours considering
+    int K = std::atoi(argv[2]); 
+    int n_robots = std::atoi(argv[3]);
+    double frequency = std::atof(argv[4]);
+
+
+    int n_nodes = K+1;
+    double dt = 1/frequency;
+
+    ros::NodeHandle nh;
+    nh.getParam("/a", a);
+    nh.getParam("/b", b);
+    double temp_ka, temp_kr;
+    nh.getParam("/ka", temp_ka);
+    nh.getParam("/kr", temp_kr);
+    nh.getParam("/KR", KR);
+
+    ka = 1/temp_ka;
+    kr = 1/temp_kr;
+
+    std::cout<<a<<" "<<b<<" "<<ka<<" "<<kr<<" "<<KR<<std::endl;
     ros::Publisher control_pub, goal_pub, edge_pub, circle_pub;
     stringstream ss, ss1, ss2;
     ss << "/robot_"<<robot_id<<"/"<<"desired_state";
@@ -197,9 +209,6 @@ int main(int argc, char **argv) {
     if(robot_id == 1)
         goal_pub = nh.advertise<visualization_msgs::Marker>("/mrf_goal",frequency);
 
-    // K : number of neighbours considering
-    int K = 3;
-    int n_nodes = K+1;
 
     double max_acc = 1;
 
