@@ -1,0 +1,80 @@
+<launch>
+
+<!--  <param name="count" value="1"/>-->
+  <param name="cf1" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=1" />
+  <param name="cf2" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=2" />
+  <param name="cf3" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=3" />
+  <param name="cf4" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=4" />
+  <param name="cf5" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=5" />
+  <param name="cf6" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=6" />
+  <param name="cf7" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=7" />
+  <param name="cf8" command="$(find xacro)/xacro $(find multi_uav_simulator)/cf_description/crazyflie.urdf.xacro robot_id:=8" />
+
+  <!-- Vehicle Parameters -->
+  <rosparam file="$(find multi_uav_simulator)/config/cf_config.yaml"/>
+  <param name="frame/fixed" value="map"/>
+
+
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find multi_uav_simulator)/config/custom_rosconsole.conf"/>
+
+  <group ns="robot_1">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="1"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_2">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="2"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_3">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="3"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_4">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="4"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_5">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="5"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_6">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="6"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_7">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="7"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <group ns="robot_8">
+    <node name="drone" pkg="multi_uav_simulator" type="multi_uav_simulator" output="screen">
+      <param name="robot_id" value="8"/>
+      <param name="frame/prefix" value="/base_link"/>
+    </node>
+  </group>
+
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find multi_uav_simulator)/config/simulation.rviz"/>
+
+</launch>
+
+

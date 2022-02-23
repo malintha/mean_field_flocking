@@ -1,0 +1,59 @@
+controller:
+  gains: [1, 0.5, 0.0015, 0.00075]
+
+# model parameters for crazyflie drone
+uav:
+  J: [2.3951e-5, 2.3951e-5, 3.2347e-5]
+  m: 0.032
+  d: 0.08
+  ctf: 0.0037
+  gravity: 9.81
+
+# define the initial positions of each robot in NWU frame
+robot_1:
+  position: [5, 5, 0]
+  velocity: [0, 0, 0]
+  rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  omega: [0, 0, 0]
+
+robot_2:
+  position: [5, 6, 0]
+  velocity: [0, 0, 0]
+  rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  omega: [0, 0, 0]
+
+robot_3:
+  position: [6, 5, 0]
+  velocity: [0, 0, 0]
+  rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  omega: [0, 0, 0]
+
+robot_4:
+  position: [6, 6, 0]
+  velocity: [0, 0, 0]
+  rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  omega: [0, 0, 0]
+
+robot_5:
+  position: [6, 0, 0]
+  velocity: [ 0, 0, 0]
+  rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
+  omega: [ 0, 0, 0 ]
+
+robot_6:
+  position: [6, -1, 0 ]
+  velocity: [ 0, 0, 0 ]
+  rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
+  omega: [ 0, 0, 0 ]
+
+robot_7:
+  position: [5, 0, 0 ]
+  velocity: [ 0, 0, 0 ]
+  rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
+  omega: [ 0, 0, 0 ]
+
+robot_8:
+  position: [5, -1, 0 ]
+  velocity: [ 0, 0, 0 ]
+  rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
+  omega: [ 0, 0, 0 ]
