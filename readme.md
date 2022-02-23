@@ -4,7 +4,7 @@ This repository contains the code for the ICRA-2021 publication titled "Online F
 
 | ![Cover Image](https://github.com/malintha/mean_field_flocking/blob/master/cover.gif?raw=true) |
 |:--:| 
-| * A swarm of 8 quadrotors demostrating flocking behavior. * |
+| *A swarm of 8 quadrotors demostrating flocking behavior.* |
 
 **Install dependencies**
 
