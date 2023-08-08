@@ -12,23 +12,25 @@
 #include <random>
 #include <map>
 
+
 float a,b,ka,kr,KR;
 
 std::default_random_engine gen;
 std::normal_distribution<double> dist_n(0.0,0.1);
-static Vector3d rc(-6, 9, 0);
+static Vector3d rc(-6, 6, 0);
 
 std::random_device rd;
 std::mt19937 mt(rd());
 std::uniform_int_distribution<int> dist (1,2);
+
 
 std::map<int, int> group_map = {
     { 1, 1},
     { 2, 1},
     { 3, 1},
     { 4, 1},
-    { 5, 2},
-    { 6, 2},
+    { 5, 1},
+    { 6, 1},
     { 7, 2},
     { 8, 2},
 };
@@ -232,6 +234,8 @@ int main(int argc, char **argv) {
     
     double max_acc_1 = 1;
     double max_acc_2 = 2;
+    double max_vel_1 = 1;
+    double max_vel_2 = 2;
     double max_acc;
 
     if(group_map[robot_id] == 2)
@@ -306,18 +310,20 @@ int main(int argc, char **argv) {
             // get the id of the closest neighbours
             int neighbour_id = neighbour_dist[k].first;
             int neighbor_group = group_map[neighbour_id];
-            
-            if (neighbor_group == 1)
+            int max_vel;
+            if (neighbor_group == 1) {
                 U = U1;
-            else 
+                max_vel = max_vel_1;
+            }
+            else {
                 U = U2;
-            
-
+                max_vel = max_vel_2;
+            }
             // create label set for the neighbour
             vector<Label> label_set;
             for(auto & u : U) {
                 Label l(u/2, states[neighbour_id-1], 1);
-                if(abs(l.vt[0]) < 1 && abs(l.vt[1]) < 1) {
+                if(abs(l.vt[0]) < max_vel && abs(l.vt[1]) < max_vel) {
                     label_set.push_back(l);
                 }
             }

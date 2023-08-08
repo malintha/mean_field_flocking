@@ -5,7 +5,7 @@
     
     <!-- Swarm parameters -->
     <arg name="n_robots" default="8"/>
-    <arg name="k_neighbors" default="6"/>
+    <arg name="k_neighbors" default="5"/>
     <arg name="frequency" default="3"/>
 
     <!-- Tuning parameters: Eq (5) and (6) -->
@@ -13,7 +13,7 @@
     <arg name="repulsion_bias" default="3"/> <!-- b -->
     <arg name="agent_attraction" default="1.5"/> <!-- ka -->
     <arg name="agent_repulsion" default="0.5"/> <!-- kr -->
-    <arg name="roost_attraction" default="5"/> <!-- KR -->
+    <arg name="roost_attraction" default="10"/> <!-- KR -->
 
     <param name="a" value="$(arg attraction_bias)"/>
     <param name="b" value="$(arg repulsion_bias)"/>

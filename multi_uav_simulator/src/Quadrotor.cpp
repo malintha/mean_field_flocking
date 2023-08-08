@@ -191,14 +191,14 @@ bool Quadrotor::load_init_vals() {
     stringstream ss;
     ss << "/robot_" << to_string(this->robot_id);
     string robot_name = ss.str();
-    srand(this->robot_id);
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist (-10,10);
+    // srand(this->robot_id);
+    // std::random_device rd;
+    // std::mt19937 mt(rd());
+    // std::uniform_int_distribution<int> dist (-2,2);
 
-    int x_offset =  dist(mt)/5;
-    int y_offset =  dist(mt)/5;
-    std::cout<<x_offset<<" offsets: "<<y_offset<<std::endl;
+    // int x_offset =  dist(mt);
+    // int y_offset =  dist(mt);
+    // std::cout<<x_offset<<" offsets: "<<y_offset<<std::endl;
     if (!nh.getParam(ros::names::append(robot_name, "position"), position)) return false;
     if (!nh.getParam(ros::names::append(robot_name, "velocity"), vel)) return false;
     if (!nh.getParam(ros::names::append(robot_name, "rotation"), R)) return false;
@@ -206,7 +206,9 @@ bool Quadrotor::load_init_vals() {
     if (!nh.getParam("/frame/fixed", worldframe)) return false;
     if (!nh.getParam("drone/frame/prefix", localframe)) return false;
 
-    init_vals.position = Vector3d(position[0] + x_offset, position[1] + y_offset, 0);
+    // init_vals.position = Vector3d(position[0] + x_offset, position[1] + y_offset, 0);
+    init_vals.position = Vector3d(position[0], position[1], 0);
+
     init_vals.velocity = Vector3d(vel.data());
     init_vals.R = Matrix3d(R.data());
     init_vals.omega = Vector3d(omega.data());
