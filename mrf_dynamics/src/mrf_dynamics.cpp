@@ -12,7 +12,6 @@
 #include <random>
 #include <map>
 
-
 float a,b,ka,kr,KR;
 
 std::default_random_engine gen;
@@ -31,9 +30,11 @@ std::map<int, int> group_map = {
     { 4, 1},
     { 5, 1},
     { 6, 1},
-    { 7, 2},
-    { 8, 2},
+    { 7, 1},
+    { 8, 3},
 };
+bool adversarial = true;
+int adversarial_k = 3;
 
 void draw_edges(const ros::Publisher& edge_pub, vector<geometry_msgs::Point> neighbor_pos,Vector3d rgb) {
     visualization_msgs::Marker m;
@@ -124,6 +125,11 @@ double psi_ue(const Label& l) {
     return 3*exp(dis_to_goal/KR);
 }
 
+double psi_p_adv(const Label& xi, const Label& xj) {
+    double d = (xi.pt - xj.pt).norm();
+    return 3*(-a * exp(-(d * ka)) +1 ;
+}
+
 double psi_u(const Label& l, Vector3d& pt) {
     return psi_ue(l);
 }
@@ -149,6 +155,30 @@ double Qi_tilde_(vector<Node> &nodes, Node *n, const std::vector<simulator_utils
             double ex = compatibility(li,lj)*nodes[j].Qx[m] * psi_p_;
             sumEx += ex;
         }
+        sumEx += Ex;
+    }
+    return sumEx;
+}
+
+double Qi_tilde_adv(vector<Node> &nodes, Node *n, const std::vector<simulator_utils::Waypoint>& states) {
+    double sumEx = 0;
+    for (int j = 0; j < nodes.size(); j++) {
+        if(nodes[j].id==n->id)
+            continue;
+        double Ex = 0;
+        Label li = n->x;
+        bool adv_nei = group_map[nodes[j].id] == 3;
+
+        // expectation wrt neighbours values
+        if !adv_nei {
+        for (int m = 0; m < nodes[j].X.size(); m++) {
+            Label lj = nodes[j].X[m];
+            double psi_p_ = psi_u(nodes[j].X[m], li);
+            double ex = compatibility(li,lj)*nodes[j].Qx[m] * psi_p_;
+            sumEx += ex;
+        }
+        }
+        
         sumEx += Ex;
     }
     return sumEx;
@@ -205,7 +235,12 @@ int main(int argc, char **argv) {
     double frequency = std::atof(argv[4]);
 
 
-    int n_nodes = K+1;
+    int n_nodes;
+    if(adversarial)
+        n_nodes = K;
+    else
+        n_nodes = K+1;
+        
     double dt = 1/frequency;
 
     ros::NodeHandle nh;
@@ -243,13 +278,13 @@ int main(int argc, char **argv) {
     else
         max_acc = max_acc_1;
 
+
     vector<Drone*> drones;
     vector<Eigen::Vector3d> U1, U2, U;
 
     // create the control space 1
     for(double dx=-max_acc_1; dx <= max_acc_1; dx+=0.5) {
         for(double dy=-max_acc_1; dy <= max_acc_1; dy+=0.5) {
-        //    for(double dz=-1; dz <= 1; dz+=0.5) {
                 Eigen::Vector3d u;
                 u << dx, dy, 0;
                 U1.push_back(u);
@@ -259,7 +294,6 @@ int main(int argc, char **argv) {
 
     for(double dx=-max_acc_2; dx <= max_acc_2; dx+=0.5) {
         for(double dy=-max_acc_2; dy <= max_acc_2; dy+=0.5) {
-        //    for(double dz=-1; dz <= 1; dz+=0.5) {
                 Eigen::Vector3d u;
                 u << dx, dy, 0;
                 U2.push_back(u);
@@ -300,6 +334,13 @@ int main(int argc, char **argv) {
                 };
         std::sort(neighbour_dist.begin(), neighbour_dist.end(), compFunctor);
 
+
+        // adversarial must get to the middle of the flock
+
+        // if(group_map[robot_id] == 3) {
+
+        // }
+
         // create nodes for K nearest neighbours (K+1)
         list<int> unprocessed;
         vector<Node> nodes;
@@ -311,13 +352,19 @@ int main(int argc, char **argv) {
             int neighbour_id = neighbour_dist[k].first;
             int neighbor_group = group_map[neighbour_id];
             int max_vel;
+            bool ad_neighbor = false;
             if (neighbor_group == 1) {
                 U = U1;
                 max_vel = max_vel_1;
             }
-            else {
+            else if (neighbor_group == 2){
                 U = U2;
                 max_vel = max_vel_2;
+            }
+            else if (neighbor_group == 3) {
+                U = U1;
+                max_vel = max_vel_1;
+                ad_neighbor = true;
             }
             // create label set for the neighbour
             vector<Label> label_set;
@@ -344,6 +391,9 @@ int main(int argc, char **argv) {
         }
         else if (group_map[robot_id] == 2){
             draw_circle(circle_pub, neighbor_pos[0], Vector3d(1,0.5,1));
+        }
+        else if (group_map[robot_id] == 3){
+            draw_circle(circle_pub, neighbor_pos[0], Vector3d(1,0,0));
         }
 
 
@@ -390,6 +440,12 @@ int main(int argc, char **argv) {
                 double psi_u_ = psi_u(n->X[m], curr_pos);
                 double Qi_tilde_xi = Qi_tilde_(nodes, n, states);
                 double Qi_hat = exp(-psi_u_ -Qi_tilde_xi);
+
+                if (group_map[m+1] == 3) {
+                    double Qi_tilde_xi = Qi_tilde_(nodes, n, states);
+                    double Qi_hat = exp(-Qi_tilde_xi);
+                }
+
                 n->Qx.push_back(Qi_hat);
                 n->z += Qi_hat;
             }

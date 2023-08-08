@@ -9,7 +9,7 @@
     <arg name="frequency" default="3"/>
 
     <!-- Tuning parameters: Eq (5) and (6) -->
-    <arg name="attraction_bias" default="0.5"/> <!-- a -->
+    <arg name="attraction_bias" default="1"/> <!-- a -->
     <arg name="repulsion_bias" default="3"/> <!-- b -->
     <arg name="agent_attraction" default="1.5"/> <!-- ka -->
     <arg name="agent_repulsion" default="0.5"/> <!-- kr -->
