@@ -9,9 +9,29 @@
 #include "ros/console.h"
 #include <chrono>
 #include "visualization_msgs/Marker.h"
+#include <random>
+#include <map>
 
 float a,b,ka,kr,KR;
-static Vector3d rc(0,0,0);
+
+std::default_random_engine gen;
+std::normal_distribution<double> dist_n(0.0,0.1);
+static Vector3d rc(-6, 9, 0);
+
+std::random_device rd;
+std::mt19937 mt(rd());
+std::uniform_int_distribution<int> dist (1,2);
+
+std::map<int, int> group_map = {
+    { 1, 1},
+    { 2, 1},
+    { 3, 1},
+    { 4, 1},
+    { 5, 2},
+    { 6, 2},
+    { 7, 2},
+    { 8, 2},
+};
 
 void draw_edges(const ros::Publisher& edge_pub, vector<geometry_msgs::Point> neighbor_pos,Vector3d rgb) {
     visualization_msgs::Marker m;
@@ -42,7 +62,7 @@ void draw_edges(const ros::Publisher& edge_pub, vector<geometry_msgs::Point> nei
     edge_pub.publish(m);
 }
 
-void draw_circle(const ros::Publisher& edge_pub, geometry_msgs::Point pos ,Vector3d rgb) {
+void draw_circle(const ros::Publisher& circle_pub, geometry_msgs::Point pos ,Vector3d rgb) {
     visualization_msgs::Marker m;
     m.header.stamp = ros::Time::now();
     m.type = visualization_msgs::Marker::CYLINDER;
@@ -61,9 +81,9 @@ void draw_circle(const ros::Publisher& edge_pub, geometry_msgs::Point pos ,Vecto
     m.color.r = rgb[0];
     m.color.g = rgb[1];
     m.color.b = rgb[2];
-    m.color.a =0.5;
+    m.color.a = 0.5;
 
-    edge_pub.publish(m);
+    circle_pub.publish(m);
 }
 
 void publish_goal(const ros::Publisher& goal_pub) {
@@ -94,11 +114,12 @@ void publish_goal(const ros::Publisher& goal_pub) {
 
 double psi_p(const Label& xi, const Label& xj) {
     double d = (xi.pt - xj.pt).norm();
-    return 5*(-a * exp(-(d * ka)) + b * exp(-(d * kr))) +1 ;
+    return 3*(-a * exp(-(d * ka)) + b * exp(-(d * kr))) +1 ;
 }
 
 double psi_ue(const Label& l) {
-    return 3*exp((l.pt - rc).norm()/KR);
+    double dis_to_goal = (l.pt - rc ).norm();
+    return 3*exp(dis_to_goal/KR);
 }
 
 double psi_u(const Label& l, Vector3d& pt) {
@@ -107,7 +128,7 @@ double psi_u(const Label& l, Vector3d& pt) {
 
 double compatibility(Label li, Label lj) {
     double mu = 1.5;
-    Vector3d max_vel = {1,1,0};
+    // Vector3d max_vel = {1,1,0};
     bool vel_diff = (li.vt - lj.vt).norm();
     return mu*vel_diff;
 }
@@ -208,20 +229,36 @@ int main(int argc, char **argv) {
     circle_pub = nh.advertise<visualization_msgs::Marker>(ss2.str(),frequency);
     if(robot_id == 1)
         goal_pub = nh.advertise<visualization_msgs::Marker>("/mrf_goal",frequency);
+    
+    double max_acc_1 = 1;
+    double max_acc_2 = 2;
+    double max_acc;
 
-
-    double max_acc = 1;
+    if(group_map[robot_id] == 2)
+        max_acc = max_acc_2;
+    else
+        max_acc = max_acc_1;
 
     vector<Drone*> drones;
-    vector<Eigen::Vector3d> U;
+    vector<Eigen::Vector3d> U1, U2, U;
 
-    // create the control space
-    for(double dx=-max_acc; dx <= max_acc; dx+=0.5) {
-        for(double dy=-max_acc; dy <= max_acc; dy+=0.5) {
+    // create the control space 1
+    for(double dx=-max_acc_1; dx <= max_acc_1; dx+=0.5) {
+        for(double dy=-max_acc_1; dy <= max_acc_1; dy+=0.5) {
         //    for(double dz=-1; dz <= 1; dz+=0.5) {
                 Eigen::Vector3d u;
                 u << dx, dy, 0;
-                U.push_back(u);
+                U1.push_back(u);
+        //    }
+        }
+    }
+
+    for(double dx=-max_acc_2; dx <= max_acc_2; dx+=0.5) {
+        for(double dy=-max_acc_2; dy <= max_acc_2; dy+=0.5) {
+        //    for(double dz=-1; dz <= 1; dz+=0.5) {
+                Eigen::Vector3d u;
+                u << dx, dy, 0;
+                U2.push_back(u);
         //    }
         }
     }
@@ -245,7 +282,7 @@ int main(int argc, char **argv) {
         std::vector<std::pair<int, double>> neighbour_dist;
         for(int i=1; i <= n_robots; i++) {
             simulator_utils::Waypoint wp_j = drones[i-1]->get_state();
-            Eigen::Vector3d p_j{wp_j.position.x, wp_j.position.y, wp_j.position.z};
+            Eigen::Vector3d p_j{wp_j.position.x + dist_n(gen), wp_j.position.y + dist_n(gen), wp_j.position.z};
             double dist = (p_i-p_j).norm();
             states.push_back(wp_j);
             neighbour_dist.emplace_back(pair<int,double>(i,dist));
@@ -268,6 +305,14 @@ int main(int argc, char **argv) {
         for(int k=0;k<n_nodes;k++) {
             // get the id of the closest neighbours
             int neighbour_id = neighbour_dist[k].first;
+            int neighbor_group = group_map[neighbour_id];
+            
+            if (neighbor_group == 1)
+                U = U1;
+            else 
+                U = U2;
+            
+
             // create label set for the neighbour
             vector<Label> label_set;
             for(auto & u : U) {
@@ -284,16 +329,15 @@ int main(int argc, char **argv) {
         }
 
         // draw the neighborhood graph
-        if(robot_id == 1) {
-            draw_edges(edge_pub,neighbor_pos, Vector3d(1,0,0));
-            draw_circle(circle_pub, neighbor_pos[0], Vector3d(1,0,0));
+        if (robot_id==1) 
             publish_goal(goal_pub);
 
+        if(group_map[robot_id] == 1) {
+            // draw_edges(edge_pub,neighbor_pos, Vector3d(1,0,0));
+            draw_circle(circle_pub, neighbor_pos[0], Vector3d(0,0,1));
         }
-        else if(robot_id == 5) {
-            draw_edges(edge_pub,neighbor_pos, Vector3d(0,1,0));
-            draw_circle(circle_pub, neighbor_pos[0], Vector3d(0,1,0));
-
+        else if (group_map[robot_id] == 2){
+            draw_circle(circle_pub, neighbor_pos[0], Vector3d(1,0.5,1));
         }
 
 

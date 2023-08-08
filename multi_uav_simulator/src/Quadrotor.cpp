@@ -6,7 +6,8 @@
 #include <tf/transform_broadcaster.h>
 #include <ros/console.h>
 #include "simulator_utils/simulator_utils.h"
-
+#include <random>
+#include <time.h>
 
 Quadrotor::Quadrotor(int robot_id, double frequency, ros::NodeHandle &n)
         : robot_id(robot_id), frequency(frequency), nh(n) {
@@ -185,19 +186,27 @@ bool Quadrotor::load_params() {
     ROS_DEBUG_STREAM("Loaded control parameters");
     return true;
 }
-
 bool Quadrotor::load_init_vals() {
     vector<double> position, vel, R, omega;
     stringstream ss;
     ss << "/robot_" << to_string(this->robot_id);
     string robot_name = ss.str();
+    srand(this->robot_id);
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> dist (-10,10);
+
+    int x_offset =  dist(mt)/5;
+    int y_offset =  dist(mt)/5;
+    std::cout<<x_offset<<" offsets: "<<y_offset<<std::endl;
     if (!nh.getParam(ros::names::append(robot_name, "position"), position)) return false;
     if (!nh.getParam(ros::names::append(robot_name, "velocity"), vel)) return false;
     if (!nh.getParam(ros::names::append(robot_name, "rotation"), R)) return false;
     if (!nh.getParam(ros::names::append(robot_name, "omega"), omega)) return false;
     if (!nh.getParam("/frame/fixed", worldframe)) return false;
     if (!nh.getParam("drone/frame/prefix", localframe)) return false;
-    init_vals.position = Vector3d(position.data());
+
+    init_vals.position = Vector3d(position[0] + x_offset, position[1] + y_offset, 0);
     init_vals.velocity = Vector3d(vel.data());
     init_vals.R = Matrix3d(R.data());
     init_vals.omega = Vector3d(omega.data());

@@ -35,25 +35,26 @@ robot_4:
   omega: [0, 0, 0]
 
 robot_5:
-  position: [6, 0, 0]
+  position: [6, 4, 0]
   velocity: [ 0, 0, 0]
   rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
   omega: [ 0, 0, 0 ]
 
 robot_6:
-  position: [6, -1, 0 ]
+  position: [4, 6, 0 ]
   velocity: [ 0, 0, 0 ]
   rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
   omega: [ 0, 0, 0 ]
 
 robot_7:
-  position: [5, 0, 0 ]
+  position: [4, 4, 0 ]
   velocity: [ 0, 0, 0 ]
   rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
   omega: [ 0, 0, 0 ]
 
 robot_8:
-  position: [5, -1, 0 ]
+  position: [6, 7, 0 ]
   velocity: [ 0, 0, 0 ]
   rotation: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
   omega: [ 0, 0, 0 ]
+
